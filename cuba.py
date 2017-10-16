@@ -45,12 +45,13 @@ tspace = np.linspace(0.0, total_time, time_res)
 
 
 
-source1 = Source(Amp = 1.0, phi = 0.0, freq = 100e3, theta = 0.0, Rad = 100.0)
-source2 = Source(Amp = 0.7, phi = np.pi/2, freq = 108e3, theta = np.pi/3, Rad = 100.0)
-source3 = Source(Amp = 1.2, phi = 1.2*np.pi/5, freq = 112e3, theta = 2*np.pi/3, Rad = 100.0)
-source4 = Source(Amp = 1.45, phi = 2.0*np.pi/5, freq = 104e3, theta = np.pi/2, Rad = 100.0)
+source1 = Source(Amp = 1.2, phi = 0.0, freq = 100e3, theta = 0.0, Rad = 100.0)
+source2 = Source(Amp = 1.2, phi = np.pi/2, freq = 108e3, theta = np.pi/5, Rad = 100.0)
+source3 = Source(Amp = 1.2, phi = 1.2*np.pi/5, freq = 112e3, theta = 2*np.pi/5, Rad = 100.0)
+source4 = Source(Amp = 1.2, phi = 2.0*np.pi/5, freq = 104e3, theta = 3.*np.pi/5, Rad = 100.0)
+source5 = Source(Amp = 1.2, phi = 4.0*np.pi/5, freq = 106e3, theta = 4.*np.pi/5, Rad = 100.0)
 
-sources = [source1, source2, source3, source4]
+sources = [source1, source2, source3, source4, source5]
 x = np.linspace(-100.0, 100.0, 50)
 y = np.linspace(-100.0, 100.0, 50)
 human_loudness = np.zeros((50, 50))
@@ -59,7 +60,7 @@ total_loudness = np.zeros((50, 50))
 for i in range(50):
     print i
     for j in range(50):
-        noise_amp = 5.0e-5
+        noise_amp = 0.0#5.0e-5
         noise = 0.#noise_amp*(np.random.rand(int(time_res))-0.5)
         output_signal = np.zeros((len(tspace)))
         for source in sources:
@@ -77,13 +78,13 @@ for i in range(50):
             plt.xscale('log')
             plt.show()
 
-        total_loudness[i,j] = np.sum((np.real((np.fft.fft(smoothed_signal)))[1:])**2)
+        total_loudness[i,j] = np.sum((np.real((np.fft.fft(output_signal)))[1:])**2)
         human_loudness[i,j] = np.sum((np.real((np.fft.fft(smoothed_signal)))[1:int(time_res*cutoff_freq/nyquist_freq)])**2)
 
 
 fig = plt.figure(figsize=[14.2, 5.5])
 ax = fig.add_subplot(121)
-mappable = plt.imshow(total_loudness.transpose(), extent=[x[0], x[-1], y[0], y[-1]], interpolation='none', aspect='auto',norm=colors.LogNorm(),vmin = 1e-5, vmax = np.max(total_loudness))
+mappable = plt.imshow(total_loudness.transpose(), extent=[x[0], x[-1], y[0], y[-1]], interpolation='none', aspect='auto',norm=colors.Normalize(vmin = 0.0, vmax = np.max(total_loudness)))
 c = Wedge((0., 0.), 100.0, theta1=0.0, theta2=360.0, width=500.0, edgecolor='black', facecolor='#474747')
 ax.add_patch(c)
 plt.ylim([-100.0, 100.0])
@@ -94,7 +95,7 @@ plt.xlabel('X Position [m]')
 plt.title('Total Loudness')
 
 ax2 = fig.add_subplot(122)
-mappable = plt.imshow(human_loudness.transpose(), extent=[x[0], x[-1], y[0], y[-1]], interpolation='none', aspect='auto',norm=colors.LogNorm(), vmin = 1e-5, vmax = np.max(total_loudness))
+mappable = plt.imshow(human_loudness.transpose(), extent=[x[0], x[-1], y[0], y[-1]], interpolation='none', aspect='auto',norm=colors.Normalize(vmin = 0.0, vmax = np.max(human_loudness)))
 c2 = Wedge((0., 0.), 100.0, theta1=0.0, theta2=360.0, width=500.0, edgecolor='black', facecolor='#474747')
 ax2.add_patch(c2)
 plt.ylim([-100.0, 100.0])
